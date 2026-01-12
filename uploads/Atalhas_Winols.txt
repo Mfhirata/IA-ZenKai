@@ -1,0 +1,47 @@
+🛠️ COMANDOS RÁPIDOS: WINOLS (ATALHOS)
+[G]: Muda para o Modo 2D (Essencial para encontrar mapas manualmente).
+
+[K]: Cria um mapa a partir de uma seleção.
+
+[W]: Aumenta a largura (Width) no Modo 2D / [Ctrl+W]: Diminui.
+
+[P]: Muda para o Modo 3D (Validar a suavidade da calibração).
+
+[I]: Interpolação (Suaviza a transição entre valores selecionados).
+
+[F2]: Abre o menu de Checksum (Verde = Seguro / Vermelho = Risco).
+
+[F6]: Alterna entre o arquivo Original e Modificado para comparação.
+
+[%]: Aplica alteração percentual (Ex: Digite 5 e pressione %).
+
+[Ctrl + E]: Exporta o arquivo final (.bin).
+
+📏 TABELA DE CONVERSÃO (DADOS BRUTOS -> REAIS)
+Pressão (mbar): Valor no WinOLS - 1000 = Pressão Relativa (Ex: 2500 = 1.5 bar).
+
+Torque (Nm): Fator 0.1 (Ex: 4500 no mapa = 450 Nm).
+
+Injeção (IQ): Fator 0.01 (Ex: 6000 no mapa = 60 mg/stk).
+
+Lambda: Fator 0.001 (Ex: 850 no mapa = 0.85 Lambda).
+
+Temperatura: Fator 0.1 / Offset -273.1.
+
+🚨 CHECKLIST DE SEGURANÇA (ANTES DE GRAVAR)
+Tensão: Estabilizador conectado? (Mínimo 13.5V).
+
+Backup: Fiz o Backup Full (Micro + Flash + EEPROM)?
+
+Compatibilidade: HW e SW são 100% idênticos ao original?
+
+Checksum: O WinOLS deu "Everything is OK" em verde?
+
+📊 O QUE MONITORAR NO LOG (PÓS-GRAVAÇÃO)
+VAG: Misfire (Falhas de ignição) e Ignition Retard (Atraso de ponto).
+
+BMW: Rail Pressure (Pressão de combustível) e Boost (Real vs Desejado).
+
+MERCEDES: EGT (Temperatura de escape) - Não passar de 950°C em gasolina.
+
+DIESEL (Geral): AFR - Nunca baixar de 17.2 (Evita fumaça e entupimento de DPF).
