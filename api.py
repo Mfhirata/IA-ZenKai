@@ -4,7 +4,7 @@ from werkzeug.utils import secure_filename
 from extrator_rotulador import classificar_bloco
 
 # CONFIGURAÇÃO DE PASTAS (Conforme sua imagem C:\Zenkai\arquivos)
-BASE_DIR = r'C:\Zenkai\arquivos'
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 PASTA_UPLOADS = os.path.join(BASE_DIR, "uploads")
 TAMANHO_BLOCO = 64
 
