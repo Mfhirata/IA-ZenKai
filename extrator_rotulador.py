@@ -1,5 +1,6 @@
 import os
 import statistics
+import math
 
 PASTA_UPLOADS = "uploads"
 TAMANHO_BLOCO = 64
