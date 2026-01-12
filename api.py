@@ -112,14 +112,14 @@ def upload():
     with open(caminho_final, "wb") as f:
         f.write(dados_para_modificar)
 
-    # --- RETORNO ESTRUTURADO PARA O DIFY ---
+    # --- RETORNO ESTRUTURADO PARA O DIFY (URL ATUALIZADA PARA PRODUÇÃO) ---
     return jsonify({
         "perfil_detectado": perfil,
-        "download_url": f"http://192.168.23.106:5000/download/{nome_final}",
+        "download_url": f"https://ia-zenkai-api.onrender.com/download/{nome_final}",
         "analise_status": "Arquivos processados com sucesso",
         "comparacao": diferencas[:50],
         "resultados_analise": resultados_analise,
-        "sugestao_proativa": sugestao,  # CAMPO NOVO PARA A IA CONSULTAR
+        "sugestao_proativa": sugestao, 
         "seguranca_feedback": "Nenhum bloqueio detectado. Ganhos dentro da margem de segurança." if not diferencas else "Alterações detectadas. Validar conforme Tabela Mestre."
     })
 
