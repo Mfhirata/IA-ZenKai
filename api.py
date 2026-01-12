@@ -19,19 +19,24 @@ def upload():
         file.save(path)
         caminhos.append(path)
 
-    # Chama o método que unifica toda a inteligência que criamos
+    # Captura os nomes vindo do seu Dify (novo_valor / confirmar_edicao)
     resultado = core.processar_requisicao(
         caminhos=caminhos, 
         offset=request.form.get("offset"), 
-        valor=request.form.get("valor"),
-        confirmar=request.form.get("confirmar")
+        valor=request.form.get("novo_valor") or request.form.get("valor"),
+        confirmar=request.form.get("confirmar_edicao") or request.form.get("confirmar")
     )
     
-    # URL de download baseada no primeiro arquivo (ou no modificado)
-    nome_download = os.path.basename(caminhos[0])
-    resultado["download_url"] = f"https://ia-zenkai-api.onrender.com/download/{nome_download}"
+    # TRADUÇÃO DE COMPATIBILIDADE PARA O CLOUD DIFY
+    resposta_compativel = {
+        "perfil_detectado": resultado.get("perfil", {}).get("status", "Análise Concluída"),
+        "seguranca_feedback": f"Score: {resultado.get('perfil', {}).get('score', 0)}% - {resultado.get('perfil', {}).get('status')}",
+        "resultados_analise": resultado.get("alteracoes", []),
+        "download_url": f"https://ia-zenkai-api.onrender.com/download/{os.path.basename(caminhos[0])}",
+        "sugestao_proativa": "Verifique a lista de alterações para sugestões de Stage 1."
+    }
     
-    return jsonify(resultado)
+    return jsonify(resposta_compativel)
 
 @app.route('/download/<filename>')
 def download(filename):
