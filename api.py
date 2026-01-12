@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify, send_from_directory
 import os
+import statistics  # Adicionado para suporte à nova acurácia
 from werkzeug.utils import secure_filename
 from extrator_rotulador import classificar_bloco
 
@@ -12,6 +13,25 @@ app = Flask(__name__)
 
 if not os.path.exists(PASTA_UPLOADS):
     os.makedirs(PASTA_UPLOADS)
+
+# --- NOVA FUNÇÃO: AUTO-DISCOVERY DE OPORTUNIDADES ---
+def buscar_oportunidades_extras(dados, perfil_ecu):
+    """Varre o binário em busca de serviços proativos (Ex: Hardcut)"""
+    oportunidade = None
+    for offset in range(0, len(dados), TAMANHO_BLOCO):
+        bloco = dados[offset:offset+TAMANHO_BLOCO]
+        if len(bloco) < TAMANHO_BLOCO: continue
+        
+        # Se identificar um padrão de limitador (High value + Low Dev)
+        # que não seja o início do arquivo (onde geralmente está a injeção na M1.x)
+        if offset > 0x100 and min(bloco) > 160 and statistics.stdev(bloco) < 10:
+            oportunidade = {
+                "servico": "Hardcut / Pop and Bangs",
+                "offset": hex(offset),
+                "motivo": f"Limitador de rotação detectado em {hex(offset)} com assinatura compatível."
+            }
+            break
+    return oportunidade
 
 @app.route("/")
 def home():
@@ -72,6 +92,9 @@ def upload():
         rotulo = classificar_bloco(bloco)
         resultados_analise.append({"offset_hex": hex(offset), "rotulo": rotulo})
 
+    # --- NOVA LOGICA: DISPARO DO AUTO-DISCOVERY ---
+    sugestao = buscar_oportunidades_extras(dados_para_modificar, perfil)
+
     # --- EXECUÇÃO DE EDIÇÃO (SÓ COM CONFIRMAÇÃO) ---
     nome_final = secure_filename(files[0].filename)
 
@@ -96,6 +119,7 @@ def upload():
         "analise_status": "Arquivos processados com sucesso",
         "comparacao": diferencas[:50],
         "resultados_analise": resultados_analise,
+        "sugestao_proativa": sugestao,  # CAMPO NOVO PARA A IA CONSULTAR
         "seguranca_feedback": "Nenhum bloqueio detectado. Ganhos dentro da margem de segurança." if not diferencas else "Alterações detectadas. Validar conforme Tabela Mestre."
     })
 
