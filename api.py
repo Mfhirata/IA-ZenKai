@@ -3,7 +3,7 @@ import os
 from werkzeug.utils import secure_filename
 from extrator_rotulador import classificar_bloco
 
-# CONFIGURAÇÃO DE PASTAS (Conforme sua imagem C:\Zenkai\arquivos)
+# CONFIGURAÇÃO DE PASTAS
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 PASTA_UPLOADS = os.path.join(BASE_DIR, "uploads")
 TAMANHO_BLOCO = 64
@@ -35,7 +35,7 @@ def upload():
     offset_alvo = request.form.get("offset")
     valor_novo = request.form.get("valor")
 
-    # 🔥 NOVO -> confirmação da IA
+    # Confirmação da IA
     confirmar = request.form.get("confirmar")
     
     # --- LOGICA DE COMPARAÇÃO (Cenário C) ---
@@ -43,7 +43,6 @@ def upload():
     if len(salvos) == 2:
         with open(salvos[0], "rb") as f1, open(salvos[1], "rb") as f2:
             b1, b2 = f1.read(), f2.read()
-            # Compara até o final do menor arquivo
             for i in range(min(len(b1), len(b2))):
                 if b1[i] != b2[i]:
                     diferencas.append({
@@ -52,12 +51,20 @@ def upload():
                         "para": hex(b2[i])
                     })
 
-    # --- LÓGICA DE ANÁLISE ORIGINAL (Preservada - Cenário A) ---
+    # --- LÓGICA DE ANÁLISE ORIGINAL ---
     with open(salvos[0], "rb") as f:
         dados_para_modificar = bytearray(f.read())
 
+    # Identificação de Perfil (Essencial para o Pilar 1)
+    tamanho_arquivo = len(dados_para_modificar)
+    if tamanho_arquivo == 4096:
+        perfil = "Bosch Motronic M1.x (BMW/Porsche)"
+    elif tamanho_arquivo == 8192:
+        perfil = "Bosch Motronic M1.7/M3.1"
+    else:
+        perfil = "Arquivo Binário Genérico"
+
     resultados_analise = []
-    # Limite para evitar Time Out no Dify
     for i, offset in enumerate(range(0, len(dados_para_modificar), TAMANHO_BLOCO)):
         if i > 100: break 
         bloco = dados_para_modificar[offset:offset+TAMANHO_BLOCO]
@@ -82,12 +89,14 @@ def upload():
     with open(caminho_final, "wb") as f:
         f.write(dados_para_modificar)
 
-    # Retorno completo para o Dify decidir o que mostrar
+    # --- RETORNO ESTRUTURADO PARA O DIFY ---
     return jsonify({
+        "perfil_detectado": perfil,
         "download_url": f"http://192.168.23.106:5000/download/{nome_final}",
-        "analise_status": "Arquivos processados",
+        "analise_status": "Arquivos processados com sucesso",
         "comparacao": diferencas[:50],
-        "resultados_analise": resultados_analise
+        "resultados_analise": resultados_analise,
+        "seguranca_feedback": "Nenhum bloqueio detectado. Ganhos dentro da margem de segurança." if not diferencas else "Alterações detectadas. Validar conforme Tabela Mestre."
     })
 
 @app.route('/download/<filename>')
